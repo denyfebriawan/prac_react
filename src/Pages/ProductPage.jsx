@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button/Button";
 
@@ -46,13 +46,28 @@ const products = [
 const email = localStorage.getItem("email");
 
 const ProductPage = () => {
-  const [cart, setCart] = useState([
-    {
-      id: 1,
-      title: "Nike",
-      qty: 1,
-    },
-  ]);
+  const [cart, setCart] = useState([]);
+
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  useEffect(() => {
+    setCart(
+      localStorage.getItem("cart") !== null
+        ? JSON.parse(localStorage.getItem("cart"))
+        : []
+    );
+  }, []);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      const sum = cart.reduce((acc, item) => {
+        const product = products.find((product) => product.id === item.id);
+        return acc + product.price * item.qty;
+      }, 0);
+      setTotalPrice(sum);
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  }, [cart]);
 
   const handleLogout = () => {
     localStorage.removeItem("email");
@@ -71,6 +86,16 @@ const ProductPage = () => {
       setCart([...cart, { id, qty: 1 }]);
     }
   };
+
+  const totalPriceRef = useRef(null);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      totalPriceRef.current.style.display = "table-row";
+    } else {
+      totalPriceRef.current.style.display = "none";
+    }
+  }, [cart]);
 
   return (
     <Fragment>
@@ -116,6 +141,7 @@ const ProductPage = () => {
                   <tr key={item.id}>
                     <td>{product.title}</td>
                     <td>
+                      Rp
                       {product.price.toLocaleString("id-ID", {
                         styles: "currency",
                         currency: "IDR",
@@ -123,6 +149,7 @@ const ProductPage = () => {
                     </td>
                     <td>{item.qty}</td>
                     <td>
+                      Rp
                       {(product.price * item.qty).toLocaleString("id-ID", {
                         styles: "currency",
                         currency: "IDR",
@@ -131,6 +158,16 @@ const ProductPage = () => {
                   </tr>
                 );
               })}
+              <tr ref={totalPriceRef}>
+                <td colSpan={3}>Total Price</td>
+                <td>
+                  Rp
+                  {totalPrice.toLocaleString("id-ID", {
+                    styles: "currency",
+                    currency: "IDR",
+                  })}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
