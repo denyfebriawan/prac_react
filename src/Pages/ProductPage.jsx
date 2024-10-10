@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button/Button";
 import getProducts from "../services/products.service";
+import { getUsername } from "../services/auth.service";
 
 // const products = [
 //   {
@@ -44,14 +45,24 @@ import getProducts from "../services/products.service";
 //   },
 // ];
 
-const email = localStorage.getItem("email");
-
 const ProductPage = () => {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState("");
+
+  const [username, setUsername] = useState("");
 
   const [totalPrice, setTotalPrice] = useState(0);
 
   const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const user = getUsername(token);
+      setUsername(user);
+    } else {
+      window.location.href = "/login";
+    }
+  });
 
   useEffect(() => {
     getProducts((data) => {
@@ -79,8 +90,8 @@ const ProductPage = () => {
   }, [cart, products]);
 
   const handleLogout = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem("token");
+    localStorage.removeItem("cart");
     window.location.href = "/login";
   };
 
@@ -109,7 +120,7 @@ const ProductPage = () => {
   return (
     <Fragment>
       <div className="flex justify-end h-20 bg-blue-600 text-white items-center px-10">
-        {email}
+        {username}
         <Button variant="ml-5 bg-red-700" onClick={handleLogout}>
           Logout
         </Button>
@@ -150,7 +161,7 @@ const ProductPage = () => {
                   );
                   return (
                     <tr key={item.id}>
-                      <td>{product.title.substring(0,10)}...</td>
+                      <td>{product.title.substring(0, 10)}...</td>
                       <td>
                         $
                         {product.price.toLocaleString("id-ID", {
