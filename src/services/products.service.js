@@ -1,14 +1,29 @@
 import axios from "axios";
 
-const getProducts = (callback) => {
-  axios
-    .get("https://fakestoreapi.com/products")
-    .then((res) => {
-      callback(res.data);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+const getProducts = async () => {
+  try {
+    const response = await axios.get("https://fakestoreapi.com/products");
+    return response.data;
+  } catch (error) {
+    console.error("Terjadi error :", error);
+  }
 };
 
-export default getProducts;
+const getProductDetail = async (id) => {
+  try {
+    const response = await axios.get(`https://fakestoreapi.com/products/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Terjadi error :", error);
+  }
+  // axios
+  //   .get(`https://fakestoreapi.com/products/${id}`)
+  //   .then((res) => {
+  //     callback(res.data);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
+};
+
+export { getProductDetail, getProducts };

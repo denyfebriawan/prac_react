@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button/Button";
-import getProducts from "../services/products.service";
-import { getUsername } from "../services/auth.service";
+import { getProducts } from "../services/products.service";
+import useLogin from "../hooks/useLogin";
 
 // const products = [
 //   {
@@ -47,27 +47,21 @@ import { getUsername } from "../services/auth.service";
 
 const ProductPage = () => {
   const [cart, setCart] = useState("");
-
-  const [username, setUsername] = useState("");
-
   const [totalPrice, setTotalPrice] = useState(0);
-
   const [products, setProducts] = useState([]);
+  const username = useLogin();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const user = getUsername(token);
-      setUsername(user);
-    } else {
-      window.location.href = "/login";
-    }
-  });
+    const fetchAllProduct = async () => {
+      try {
+        const response = await getProducts();
+        setProducts(response);
+      } catch (error) {
+        console.error("Error fetching all data :", error);
+      }
+    };
 
-  useEffect(() => {
-    getProducts((data) => {
-      setProducts(data);
-    });
+    fetchAllProduct();
   }, []);
 
   useEffect(() => {
