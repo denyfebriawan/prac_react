@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 import Button from "../Elements/Button/Button";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/cartSlice";
 
 const CardProduct = (props) => {
   const { children } = props;
+
   return (
     <div className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-lg shadow m-2 flex flex-col justify-between">
       {children}
@@ -40,14 +43,18 @@ const Body = (props) => {
 };
 
 const Footer = (props) => {
-  const { price, handleAddToCart, id } = props;
+  const { price, id } = props;
+  const dispatch = useDispatch();
   return (
     <div className="flex items-center justify-between p-3">
       <span className="text-3xl font-bold text-white">
         $
         {price.toLocaleString("id-ID", { styles: "currency", currency: "USD" })}
       </span>
-      <Button variant="bg-blue-700" onClick={() => handleAddToCart(id)}>
+      <Button
+        variant="bg-blue-700"
+        onClick={() => dispatch(addToCart({ id, qty: 1 }))}
+      >
         Add To Cart
       </Button>
     </div>
